@@ -48,7 +48,21 @@ const useRailgunForm = () => {
     syncedDefaultRailgunIndexer,
     railgunAccountsState,
     selectedToken
-  } = useRailgunControllerState()
+  } = useRailgunControllerState() || {}
+
+  // Guard: railgun stubbed out — noop functions for missing context values
+  const safeLoadPrivateAccount = loadPrivateAccount || (() => Promise.resolve())
+  const safeRefreshPrivateAccount = refreshPrivateAccount || (() => Promise.resolve())
+  const safeGetAccountCache = getAccountCache || (() => Promise.resolve(null))
+
+  // Guard: railgun stubbed out, return safe defaults
+  const safeRailgunAccountsState = railgunAccountsState || {
+    status: 'idle' as const,
+    balances: [],
+    accounts: [],
+    chainId: 0,
+    lastSyncedBlock: 0
+  }
 
   const { account: userAccount, portfolio } = useSelectedAccountControllerState()
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -60,9 +74,9 @@ const useRailgunForm = () => {
     : undefined
 
   const totalApprovedBalance = useMemo(() => {
-    if (railgunAccountsState.balances.length > 0) {
+    if (safeRailgunAccountsState.balances.length > 0) {
       let balance = BigInt(0);
-      for (const bal of railgunAccountsState.balances) {
+      for (const bal of safeRailgunAccountsState.balances) {
         if (bal.tokenAddress === ZERO_ADDRESS) {
           balance += BigInt(bal.amount);
         }
@@ -70,10 +84,10 @@ const useRailgunForm = () => {
       return { total: balance, accounts: []}
     }
     return { total: 0n, accounts: [] }
-  }, [railgunAccountsState])
+  }, [safeRailgunAccountsState])
 
   const totalPrivateBalancesFormatted = useMemo(() => {
-    const railgunBalances = railgunAccountsState.balances;
+    const railgunBalances = safeRailgunAccountsState.balances;
     const balanceMap: Record<string, { amount: string; decimals: number; symbol: string; name: string; price?: number }> = {};
     
     for (const balance of railgunBalances) {
@@ -483,8 +497,8 @@ const useRailgunForm = () => {
     isRagequitLoading,
     closeEstimationModal,
     handleSelectedAccount,
-    loadPrivateAccount,
-    refreshPrivateAccount,
+    loadPrivateAccount: safeLoadPrivateAccount,
+    refreshPrivateAccount: safeRefreshPrivateAccount,
     syncedDefaultRailgunAccount: getSyncedDefaultRailgunAccount,
     syncSignAccountOp,
     openEstimationModalAndDispatch,

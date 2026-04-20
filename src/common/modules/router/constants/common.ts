@@ -75,6 +75,9 @@ const WEB_ROUTES = {
   pp1Settings: 'PPv1Settings',
   pp1TokenDetails: 'PPv1TokenDetails',
 
+  // Curvy test page
+  curvyTest: 'curvy-test',
+
   // Privacy Pools V2 routes
   pp2Home: 'PPv2Home',
   pp2Deposit: 'PPv2Deposit',

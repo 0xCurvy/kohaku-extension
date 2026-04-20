@@ -209,7 +209,13 @@ module.exports = async function (env, argv) {
     '@web': path.resolve(__dirname, 'src/web'),
     '@benzin': path.resolve(__dirname, 'src/benzin'),
     '@legends': path.resolve(__dirname, 'src/legends'),
-    react: path.resolve(__dirname, 'node_modules/react')
+    react: path.resolve(__dirname, 'node_modules/react'),
+    'node:fs/promises': false,
+    'node:fs': false,
+    'node:path': false,
+    'node:url': require.resolve('url/'),
+    // Stub out railgun package entirely — not needed for curvy testing
+    '@kohaku-eth/railgun': false
   }
 
   config.resolve.fallback = {
@@ -217,6 +223,7 @@ module.exports = async function (env, argv) {
     stream: require.resolve('stream-browserify'),
     crypto: false,
     fs: false,
+    url: require.resolve('url/'),
 
     // Added: explicitly avoid bundling Node's 'module' in web
     module: false,
@@ -409,7 +416,7 @@ module.exports = async function (env, argv) {
       ...defaultExpoConfigPlugins,
 
       // you already rely on this elsewhere; keep it
-      new NodePolyfillPlugin({ excludeAliases: ['crypto', 'module', 'fs', 'path'] }),
+      new NodePolyfillPlugin({ excludeAliases: ['crypto', 'module', 'fs'] }),
 
       // Keep your existing global shims
       new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'], process: 'process' }),
@@ -468,6 +475,18 @@ module.exports = async function (env, argv) {
       options: {
         search: 'globalThis?.Blob',
         replace: 'globalThis?.Blob && URL?.createObjectURL'
+      }
+    })
+
+    // @kohaku-eth/railgun init.js has a Node-only branch that dynamically imports
+    // node:fs/promises, node:url, node:path. In browser context we skip it entirely
+    // so webpack doesn't create broken chunks for those dynamic imports.
+    config.module.rules.push({
+      test: /\/@kohaku-eth\/railgun\/dist\/init\.js$/,
+      loader: 'string-replace-loader',
+      options: {
+        search: "if (!wasmInput && typeof process !== 'undefined')",
+        replace: "if (false)"
       }
     })
 

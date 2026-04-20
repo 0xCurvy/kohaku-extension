@@ -1027,6 +1027,47 @@ type ProviderRpcRequestAction = {
   }
 }
 
+type CurvyTestControllerInitAction = {
+  type: 'CURVY_TEST_CONTROLLER_INIT'
+  params: {
+    curvyId?: string
+    environment?: 'mainnet' | 'testnet'
+    chainId?: bigint
+    apiBaseUrl?: string
+  }
+}
+
+type CurvyTestControllerFetchBalanceAction = {
+  type: 'CURVY_TEST_CONTROLLER_FETCH_BALANCE'
+}
+
+type CurvyTestControllerShieldAction = {
+  type: 'CURVY_TEST_CONTROLLER_SHIELD'
+  params: {
+    asset: { asset: any; amount: bigint }
+  }
+}
+
+type CurvyTestControllerTransferAction = {
+  type: 'CURVY_TEST_CONTROLLER_TRANSFER'
+  params: {
+    asset: { asset: any; amount: bigint }
+    toCurvyId: string
+  }
+}
+
+type CurvyTestControllerUnshieldAction = {
+  type: 'CURVY_TEST_CONTROLLER_UNSHIELD'
+  params: {
+    asset: { asset: any; amount: bigint }
+    toAddress: string
+  }
+}
+
+type CurvyTestControllerDestroyAction = {
+  type: 'CURVY_TEST_CONTROLLER_DESTROY'
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -1205,3 +1246,9 @@ export type Action =
   | PrivacyPoolsV1ControllerDestroyLatestBroadcastedAccountOpAction
   | PortfolioControllerLoadAccountsTotalBalances
   | ProviderRpcRequestAction
+  | CurvyTestControllerInitAction
+  | CurvyTestControllerFetchBalanceAction
+  | CurvyTestControllerShieldAction
+  | CurvyTestControllerTransferAction
+  | CurvyTestControllerUnshieldAction
+  | CurvyTestControllerDestroyAction
