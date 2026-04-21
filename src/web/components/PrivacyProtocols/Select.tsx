@@ -32,6 +32,16 @@ export const getPrivacyProtocolOptions = (t: TFunction<'translation', undefined>
       </View>
     ),
     value: 'privacy-pools'
+  },
+  {
+    label: (
+      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+        <Text fontSize={14} weight="light">
+          {t('Curvy')}
+        </Text>
+      </View>
+    ),
+    value: 'curvy'
   }
 ]
 

@@ -94,7 +94,12 @@ function TransferScreen() {
     // For Railgun, transactions are stored in accountsOps.transfer
     // For Privacy Pools, they're stored in accountsOps.privacyPools
     const accountsOpsSource =
-      privacyProvider === 'railgun' ? accountsOps.transfer : accountsOps.privacyPools
+      // eslint-disable-next-line no-nested-ternary
+      privacyProvider === 'railgun'
+        ? accountsOps.transfer
+        : privacyProvider === 'curvy'
+        ? null
+        : accountsOps.privacyPools
 
     if (!accountsOpsSource) return
 
@@ -130,7 +135,9 @@ function TransferScreen() {
 
   // Use 'transfer' sessionId for Railgun, 'privacyPools' for Privacy Pools
   const sessionId = useMemo(() => {
-    return privacyProvider === 'railgun' ? 'transfer' : 'privacyPools'
+    if (privacyProvider === 'railgun') return 'transfer'
+    if (privacyProvider === 'curvy') return 'curvy'
+    return 'privacyPools'
   }, [privacyProvider])
 
   const { sessionHandler } = useTrackAccountOp({
@@ -241,6 +248,8 @@ function TransferScreen() {
   }, [dispatch])
 
   const handleBroadcastAccountOp = useCallback(() => {
+    // Curvy uses direct broadcast via plugin — no AccountOp signing flow
+    if (privacyProvider === 'curvy') return
     const updateType = privacyProvider === 'railgun' ? 'Railgun' : 'PrivacyPoolsV1'
     dispatch({
       type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
@@ -252,6 +261,7 @@ function TransferScreen() {
 
   const handleUpdateStatus = useCallback(
     (status: SigningStatus) => {
+      if (privacyProvider === 'curvy') return
       const actionType =
         privacyProvider === 'railgun'
           ? 'RAILGUN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
@@ -268,12 +278,7 @@ function TransferScreen() {
 
   const updateController = useCallback(
     (params: { signingKeyAddr?: Key['addr']; signingKeyType?: Key['type'] }) => {
-      console.log(
-        'DEBUG: updateController called with params:',
-        params,
-        'privacyProvider:',
-        privacyProvider
-      )
+      if (privacyProvider === 'curvy') return
       const actionType =
         privacyProvider === 'railgun'
           ? 'RAILGUN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
@@ -434,6 +439,7 @@ function TransferScreen() {
 
       <Estimation
         updateType={privacyProvider === 'railgun' ? 'Railgun' : 'PrivacyPoolsV1'}
+        // Note: for Curvy, estimation modal is not used (direct broadcast via plugin)
         estimationModalRef={estimationModalRef}
         closeEstimationModal={closeEstimationModal}
         updateController={updateController}

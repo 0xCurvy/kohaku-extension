@@ -830,18 +830,18 @@ export const handleActions = async (
       break
     }
 
-    case 'CURVY_TEST_CONTROLLER_INIT':
-      return mainCtrl.curvyTest.init(params)
-    case 'CURVY_TEST_CONTROLLER_FETCH_BALANCE':
-      return mainCtrl.curvyTest.fetchBalance()
-    case 'CURVY_TEST_CONTROLLER_SHIELD':
-      return mainCtrl.curvyTest.prepareShield(params.asset as any)
-    case 'CURVY_TEST_CONTROLLER_TRANSFER':
-      return mainCtrl.curvyTest.transfer(params.asset as any, params.toCurvyId)
-    case 'CURVY_TEST_CONTROLLER_UNSHIELD':
-      return mainCtrl.curvyTest.unshield(params.asset as any, params.toAddress)
-    case 'CURVY_TEST_CONTROLLER_DESTROY':
-      return mainCtrl.curvyTest.destroy()
+    case 'CURVY_CONTROLLER_INIT':
+      return mainCtrl.curvy.init(params)
+    case 'CURVY_CONTROLLER_FETCH_BALANCE':
+      return mainCtrl.curvy.fetchBalance()
+    case 'CURVY_CONTROLLER_SHIELD':
+      return mainCtrl.curvy.prepareShield(params.asset as any)
+    case 'CURVY_CONTROLLER_TRANSFER':
+      return mainCtrl.curvy.transfer(params.asset as any, params.toCurvyId)
+    case 'CURVY_CONTROLLER_UNSHIELD':
+      return mainCtrl.curvy.unshield(params.asset as any, params.toAddress)
+    case 'CURVY_CONTROLLER_DESTROY':
+      return mainCtrl.curvy.destroy()
 
     default:
       // eslint-disable-next-line no-console

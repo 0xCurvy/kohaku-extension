@@ -21,6 +21,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import usePrivacyPools from '@web/hooks/usePrivacyPools/usePrivacyPools'
 import useRailgunForm from '@web/modules/railgun/hooks/useRailgunForm'
+import useCurvyForm from '@web/modules/curvy/hooks/useCurvyForm'
 
 import BalanceAffectingErrors from './BalanceAffectingErrors'
 import RefreshIcon from './RefreshIcon'
@@ -64,6 +65,8 @@ const DashboardOverview: FC<Props> = ({
     refreshPrivateAccount: refreshPrivateAccountRailgun
   } = useRailgunForm()
 
+  const { totalPrivatePortfolio: totalPrivatePortfolioCurvy } = useCurvyForm()
+
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
@@ -77,7 +80,7 @@ const DashboardOverview: FC<Props> = ({
     networksWithErrors
   } = useBalanceAffectingErrors()
 
-  const totalPrivatePortfolioMixed = totalPrivatePortfolio + totalPrivatePortfolioRailgun
+  const totalPrivatePortfolioMixed = totalPrivatePortfolio + totalPrivatePortfolioRailgun + totalPrivatePortfolioCurvy
 
   const [totalPrivatePortfolioInteger, totalPrivatePortfolioDecimal] = formatDecimals(
     totalPrivatePortfolioMixed,

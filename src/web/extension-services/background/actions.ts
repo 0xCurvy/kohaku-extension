@@ -1027,8 +1027,8 @@ type ProviderRpcRequestAction = {
   }
 }
 
-type CurvyTestControllerInitAction = {
-  type: 'CURVY_TEST_CONTROLLER_INIT'
+type CurvyControllerInitAction = {
+  type: 'CURVY_CONTROLLER_INIT'
   params: {
     curvyId?: string
     environment?: 'mainnet' | 'testnet'
@@ -1037,35 +1037,35 @@ type CurvyTestControllerInitAction = {
   }
 }
 
-type CurvyTestControllerFetchBalanceAction = {
-  type: 'CURVY_TEST_CONTROLLER_FETCH_BALANCE'
+type CurvyControllerFetchBalanceAction = {
+  type: 'CURVY_CONTROLLER_FETCH_BALANCE'
 }
 
-type CurvyTestControllerShieldAction = {
-  type: 'CURVY_TEST_CONTROLLER_SHIELD'
+type CurvyControllerShieldAction = {
+  type: 'CURVY_CONTROLLER_SHIELD'
   params: {
     asset: { asset: any; amount: bigint }
   }
 }
 
-type CurvyTestControllerTransferAction = {
-  type: 'CURVY_TEST_CONTROLLER_TRANSFER'
+type CurvyControllerTransferAction = {
+  type: 'CURVY_CONTROLLER_TRANSFER'
   params: {
     asset: { asset: any; amount: bigint }
     toCurvyId: string
   }
 }
 
-type CurvyTestControllerUnshieldAction = {
-  type: 'CURVY_TEST_CONTROLLER_UNSHIELD'
+type CurvyControllerUnshieldAction = {
+  type: 'CURVY_CONTROLLER_UNSHIELD'
   params: {
     asset: { asset: any; amount: bigint }
     toAddress: string
   }
 }
 
-type CurvyTestControllerDestroyAction = {
-  type: 'CURVY_TEST_CONTROLLER_DESTROY'
+type CurvyControllerDestroyAction = {
+  type: 'CURVY_CONTROLLER_DESTROY'
 }
 
 export type Action =
@@ -1246,9 +1246,9 @@ export type Action =
   | PrivacyPoolsV1ControllerDestroyLatestBroadcastedAccountOpAction
   | PortfolioControllerLoadAccountsTotalBalances
   | ProviderRpcRequestAction
-  | CurvyTestControllerInitAction
-  | CurvyTestControllerFetchBalanceAction
-  | CurvyTestControllerShieldAction
-  | CurvyTestControllerTransferAction
-  | CurvyTestControllerUnshieldAction
-  | CurvyTestControllerDestroyAction
+  | CurvyControllerInitAction
+  | CurvyControllerFetchBalanceAction
+  | CurvyControllerShieldAction
+  | CurvyControllerTransferAction
+  | CurvyControllerUnshieldAction
+  | CurvyControllerDestroyAction

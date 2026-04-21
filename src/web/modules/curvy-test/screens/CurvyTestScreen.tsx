@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
 
 export default function CurvyTestScreen() {
   const { dispatch } = useBackgroundService()
-  const state = useControllerState('curvyTest')
+  const state = useControllerState('curvy')
 
   const [curvyId, setCurvyId] = useState('')
   const [chainIdStr, setChainIdStr] = useState('11155111')
@@ -50,7 +50,7 @@ export default function CurvyTestScreen() {
 
   const handleInit = () => {
     dispatch({
-      type: 'CURVY_TEST_CONTROLLER_INIT',
+      type: 'CURVY_CONTROLLER_INIT',
       params: {
         curvyId: curvyId || undefined,
         environment: 'testnet' as const,
@@ -61,7 +61,7 @@ export default function CurvyTestScreen() {
   }
 
   const handleFetchBalance = () => {
-    dispatch({ type: 'CURVY_TEST_CONTROLLER_FETCH_BALANCE' })
+    dispatch({ type: 'CURVY_CONTROLLER_FETCH_BALANCE' })
   }
 
   const handleShield = () => {
@@ -69,7 +69,7 @@ export default function CurvyTestScreen() {
       ? { __type: 'erc20' as const, contract: shieldContract as `0x${string}` }
       : { __type: 'native' as const }
     dispatch({
-      type: 'CURVY_TEST_CONTROLLER_SHIELD',
+      type: 'CURVY_CONTROLLER_SHIELD',
       params: {
         asset: { asset, amount: BigInt(shieldAmount || '0') }
       }
@@ -81,7 +81,7 @@ export default function CurvyTestScreen() {
       ? { __type: 'erc20' as const, contract: transferContract as `0x${string}` }
       : { __type: 'native' as const }
     dispatch({
-      type: 'CURVY_TEST_CONTROLLER_TRANSFER',
+      type: 'CURVY_CONTROLLER_TRANSFER',
       params: {
         asset: { asset, amount: BigInt(transferAmount || '0') },
         toCurvyId: transferTo
@@ -94,7 +94,7 @@ export default function CurvyTestScreen() {
       ? { __type: 'erc20' as const, contract: unshieldContract as `0x${string}` }
       : { __type: 'native' as const }
     dispatch({
-      type: 'CURVY_TEST_CONTROLLER_UNSHIELD',
+      type: 'CURVY_CONTROLLER_UNSHIELD',
       params: {
         asset: { asset, amount: BigInt(unshieldAmount || '0') },
         toAddress: unshieldTo
@@ -103,7 +103,7 @@ export default function CurvyTestScreen() {
   }
 
   const handleDestroy = () => {
-    dispatch({ type: 'CURVY_TEST_CONTROLLER_DESTROY' })
+    dispatch({ type: 'CURVY_CONTROLLER_DESTROY' })
   }
 
   return (
