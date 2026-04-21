@@ -65,38 +65,38 @@ export default function CurvyTestScreen() {
   }
 
   const handleShield = () => {
+    const asset = shieldContract.trim()
+      ? { __type: 'erc20' as const, contract: shieldContract as `0x${string}` }
+      : { __type: 'native' as const }
     dispatch({
       type: 'CURVY_TEST_CONTROLLER_SHIELD',
       params: {
-        asset: {
-          asset: { __type: 'erc20' as const, contract: shieldContract as `0x${string}` },
-          amount: BigInt(shieldAmount || '0')
-        }
+        asset: { asset, amount: BigInt(shieldAmount || '0') }
       }
     })
   }
 
   const handleTransfer = () => {
+    const asset = transferContract.trim()
+      ? { __type: 'erc20' as const, contract: transferContract as `0x${string}` }
+      : { __type: 'native' as const }
     dispatch({
       type: 'CURVY_TEST_CONTROLLER_TRANSFER',
       params: {
-        asset: {
-          asset: { __type: 'erc20' as const, contract: transferContract as `0x${string}` },
-          amount: BigInt(transferAmount || '0')
-        },
+        asset: { asset, amount: BigInt(transferAmount || '0') },
         toCurvyId: transferTo
       }
     })
   }
 
   const handleUnshield = () => {
+    const asset = unshieldContract.trim()
+      ? { __type: 'erc20' as const, contract: unshieldContract as `0x${string}` }
+      : { __type: 'native' as const }
     dispatch({
       type: 'CURVY_TEST_CONTROLLER_UNSHIELD',
       params: {
-        asset: {
-          asset: { __type: 'erc20' as const, contract: unshieldContract as `0x${string}` },
-          amount: BigInt(unshieldAmount || '0')
-        },
+        asset: { asset, amount: BigInt(unshieldAmount || '0') },
         toAddress: unshieldTo
       }
     })
@@ -154,7 +154,7 @@ export default function CurvyTestScreen() {
           style={styles.input}
           value={apiBaseUrl}
           onChangeText={setApiBaseUrl}
-          placeholder="http://localhost:8080"
+          placeholder="http://localhost:4000"
           placeholderTextColor="#555"
           autoCapitalize="none"
         />
@@ -173,7 +173,7 @@ export default function CurvyTestScreen() {
       {/* Shield */}
       <View style={styles.section}>
         <Text style={styles.title}>Shield</Text>
-        <Text style={styles.label}>ERC20 contract address</Text>
+        <Text style={styles.label}>ERC20 contract address (blank = native ETH)</Text>
         <TextInput
           style={styles.input}
           value={shieldContract}
@@ -196,7 +196,7 @@ export default function CurvyTestScreen() {
       {/* Transfer */}
       <View style={styles.section}>
         <Text style={styles.title}>Transfer</Text>
-        <Text style={styles.label}>ERC20 contract address</Text>
+        <Text style={styles.label}>ERC20 contract address (blank = native ETH)</Text>
         <TextInput
           style={styles.input}
           value={transferContract}
@@ -209,7 +209,7 @@ export default function CurvyTestScreen() {
           style={styles.input}
           value={transferAmount}
           onChangeText={setTransferAmount}
-          placeholder="1000000"
+          placeholder="5000000000000000"
           placeholderTextColor="#555"
           keyboardType="numeric"
         />
@@ -227,7 +227,7 @@ export default function CurvyTestScreen() {
       {/* Unshield */}
       <View style={styles.section}>
         <Text style={styles.title}>Unshield</Text>
-        <Text style={styles.label}>ERC20 contract address</Text>
+        <Text style={styles.label}>ERC20 contract address (blank = native ETH)</Text>
         <TextInput
           style={styles.input}
           value={unshieldContract}

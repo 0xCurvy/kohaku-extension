@@ -409,6 +409,23 @@ module.exports = async function (env, argv) {
         from: 'node_modules/snarkjs/dist/*.wasm',
         to: 'assets/snarkjs/[name][ext]',
         noErrorOnMissing: true
+      },
+
+      // Curvy SDK WASM and ZK proving files — loaded at runtime via fetch/URL
+      {
+        from: 'node_modules/@0xcurvy/curvy-sdk/dist/_esm/curvy-core-v1.0.2.wasm',
+        to: 'assets/curvy/[name][ext]',
+        noErrorOnMissing: true
+      },
+      {
+        from: 'node_modules/@0xcurvy/curvy-sdk/dist/_esm/verifyNoteOwnership_10.wasm',
+        to: 'assets/curvy/[name][ext]',
+        noErrorOnMissing: true
+      },
+      {
+        from: 'node_modules/@0xcurvy/curvy-sdk/dist/_esm/verifyNoteOwnership_10_0001.zkey',
+        to: 'assets/curvy/[name][ext]',
+        noErrorOnMissing: true
       }
     ]
 
@@ -478,6 +495,19 @@ module.exports = async function (env, argv) {
       }
     })
 
+    // circomlibjs bundles an older ffjavascript that accesses `Worker` at the
+    // top level. Service workers don't have `Worker`, so this throws a
+    // ReferenceError at module init time, which poisons the webpack module
+    // cache and breaks the curvy dynamic import.
+    config.module.rules.push({
+      test: /ffjavascript\/build\/browser\.esm\.js$/,
+      loader: 'string-replace-loader',
+      options: {
+        search: 'var browser = Worker;',
+        replace: 'var browser = typeof Worker !== "undefined" ? Worker : undefined;'
+      }
+    })
+
     // @kohaku-eth/railgun init.js has a Node-only branch that dynamically imports
     // node:fs/promises, node:url, node:path. In browser context we skip it entirely
     // so webpack doesn't create broken chunks for those dynamic imports.
@@ -487,6 +517,33 @@ module.exports = async function (env, argv) {
       options: {
         search: "if (!wasmInput && typeof process !== 'undefined')",
         replace: "if (false)"
+      }
+    })
+
+    // Curvy SDK uses Vite-specific `?init` import for core WASM.
+    // We pass wasmUrl explicitly so this path is never taken, but webpack
+    // still tries to parse it. Replace with a stub that throws clearly.
+    config.module.rules.push({
+      test: /@0xcurvy\/curvy-sdk\/dist\/_esm\/index\.js$/,
+      loader: 'string-replace-loader',
+      options: {
+        multiple: [
+          {
+            search: "await import('./curvy-core-v1.0.2.wasm?init')",
+            replace:
+              "await Promise.reject(new Error('WASM ?init import not available — pass wasmUrl to CurvySDK.init()'))"
+          },
+          {
+            search: "(await import('./verifyNoteOwnership_10.wasm?url')).default",
+            replace:
+              "(typeof chrome !== 'undefined' && chrome.runtime ? chrome.runtime.getURL('assets/curvy/verifyNoteOwnership_10.wasm') : '')"
+          },
+          {
+            search: "(await import('./verifyNoteOwnership_10_0001.zkey?url')).default",
+            replace:
+              "(typeof chrome !== 'undefined' && chrome.runtime ? chrome.runtime.getURL('assets/curvy/verifyNoteOwnership_10_0001.zkey') : '')"
+          }
+        ]
       }
     })
 
