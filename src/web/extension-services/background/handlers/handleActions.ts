@@ -4,6 +4,7 @@
 import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
 import {
+  SIGN_ACCOUNT_OP_CURVY,
   SIGN_ACCOUNT_OP_MAIN,
   SIGN_ACCOUNT_OP_SWAP,
   SIGN_ACCOUNT_OP_TRANSFER,
@@ -294,6 +295,8 @@ export const handleActions = async (
         signAccountOpType = SIGN_ACCOUNT_OP_PRIVACY_POOLS_V1
       } else if (params.updateType === 'Railgun') {
         signAccountOpType = SIGN_ACCOUNT_OP_RAILGUN
+      } else if (params.updateType === 'Curvy') {
+        signAccountOpType = SIGN_ACCOUNT_OP_CURVY
       } else {
         signAccountOpType = SIGN_ACCOUNT_OP_TRANSFER
       }
@@ -342,6 +345,10 @@ export const handleActions = async (
 
       if (params.updateType === 'Railgun') {
         return mainCtrl?.railgun?.signAccountOpController?.update(params)
+      }
+
+      if (params.updateType === 'Curvy') {
+        return mainCtrl?.curvy?.signAccountOpController?.update(params)
       }
 
       // 'Transfer&TopUp'
@@ -842,6 +849,14 @@ export const handleActions = async (
       return mainCtrl.curvy.unshield(params.asset as any, params.toAddress)
     case 'CURVY_CONTROLLER_DESTROY':
       return mainCtrl.curvy.destroy()
+    case 'CURVY_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
+      return mainCtrl.curvy?.signAccountOpController?.update(params)
+    case 'CURVY_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
+      return mainCtrl.curvy?.signAccountOpController?.updateStatus(params.status)
+    case 'CURVY_CONTROLLER_HAS_USER_PROCEEDED':
+      return mainCtrl.curvy.setUserProceeded(params.proceeded)
+    case 'CURVY_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP':
+      return mainCtrl.curvy.destroyLatestBroadcastedAccountOp()
 
     default:
       // eslint-disable-next-line no-console

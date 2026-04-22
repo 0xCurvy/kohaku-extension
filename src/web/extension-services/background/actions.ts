@@ -401,6 +401,7 @@ type SignAccountOpUpdateAction = {
       | 'PrivacyPools'
       | 'PrivacyPoolsV1'
       | 'Railgun'
+      | 'Curvy'
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
     estimation?: FullEstimation
@@ -418,6 +419,8 @@ type MainControllerSignAccountOpUpdateStatus = {
     | 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
     | 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
     | 'PRIVACY_POOLS_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
+    | 'RAILGUN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
+    | 'CURVY_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
   params: {
     status: SigningStatus
   }
@@ -432,6 +435,7 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
       | 'PrivacyPools'
       | 'Railgun'
       | 'PrivacyPoolsV1'
+      | 'Curvy'
   }
 }
 
@@ -800,7 +804,8 @@ type PrivacyControllerUnloadScreenAction = {
 type PrivacyControllerSignAccountOpUpdateAction = {
   type: 'PRIVACY_POOLS_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
   params: {
-    status: SigningStatus
+    signingKeyAddr?: Key['addr']
+    signingKeyType?: Key['type']
   }
 }
 
@@ -890,7 +895,8 @@ type RailgunControllerUnloadScreenAction = {
 type RailgunControllerSignAccountOpUpdateAction = {
   type: 'RAILGUN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
   params: {
-    status: SigningStatus
+    signingKeyAddr?: Key['addr']
+    signingKeyType?: Key['type']
   }
 }
 
@@ -1066,6 +1072,32 @@ type CurvyControllerUnshieldAction = {
 
 type CurvyControllerDestroyAction = {
   type: 'CURVY_CONTROLLER_DESTROY'
+}
+
+type CurvyControllerSignAccountOpUpdateAction = {
+  type: 'CURVY_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
+  params: {
+    signingKeyAddr?: Key['addr']
+    signingKeyType?: Key['type']
+  }
+}
+
+type CurvyControllerSignAccountOpUpdateStatusAction = {
+  type: 'CURVY_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
+  params: {
+    status: SigningStatus
+  }
+}
+
+type CurvyControllerHasUserProceededAction = {
+  type: 'CURVY_CONTROLLER_HAS_USER_PROCEEDED'
+  params: {
+    proceeded: boolean
+  }
+}
+
+type CurvyControllerDestroyLatestBroadcastedAccountOpAction = {
+  type: 'CURVY_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
 }
 
 export type Action =
@@ -1252,3 +1284,7 @@ export type Action =
   | CurvyControllerTransferAction
   | CurvyControllerUnshieldAction
   | CurvyControllerDestroyAction
+  | CurvyControllerSignAccountOpUpdateAction
+  | CurvyControllerSignAccountOpUpdateStatusAction
+  | CurvyControllerHasUserProceededAction
+  | CurvyControllerDestroyLatestBroadcastedAccountOpAction

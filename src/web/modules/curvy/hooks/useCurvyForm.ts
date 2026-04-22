@@ -134,11 +134,17 @@ const useCurvyForm = () => {
       ? { __type: 'native' as const }
       : { __type: 'erc20' as const, contract: selectedToken.address as `0x${string}` }
 
+    // prepareShield internally calls syncSignAccountOp, building the AccountOp
     dispatch({
       type: 'CURVY_CONTROLLER_SHIELD',
       params: {
         asset: { asset, amount: BigInt(depositAmount) }
       }
+    })
+
+    dispatch({
+      type: 'CURVY_CONTROLLER_HAS_USER_PROCEEDED',
+      params: { proceeded: true }
     })
 
     openEstimationModal()
@@ -220,7 +226,7 @@ const useCurvyForm = () => {
     chainData: null,
     seedPhrase: '',
     poolAccounts: [],
-    hasProceeded: false,
+    hasProceeded: curvyState?.hasProceeded ?? false,
     depositAmount,
     selectedToken,
     accountService: null,
@@ -230,8 +236,8 @@ const useCurvyForm = () => {
     showAddedToBatch: false,
     estimationModalRef,
     selectedPoolAccount: null,
-    signAccountOpController: null,
-    latestBroadcastedAccountOp: null,
+    signAccountOpController: curvyState?.signAccountOpController ?? null,
+    latestBroadcastedAccountOp: curvyState?.latestBroadcastedAccountOp ?? null,
     isLoading: curvyState?.status === 'initializing',
     isReady,
     isRefreshing: false,
