@@ -33,7 +33,7 @@ type Props = {
   errors?: SignAccountOpError[]
   signAccountOpController: SignAccountOpController | null
   hasProceeded: boolean
-  updateType: 'Swap&Bridge' | 'Transfer&TopUp' | 'PrivacyPools' | 'PrivacyPoolsV1' | 'Railgun'
+  updateType: 'Swap&Bridge' | 'Transfer&TopUp' | 'PrivacyPools' | 'PrivacyPoolsV1' | 'Railgun' | 'Curvy'
 }
 
 const { isActionWindow, isTab } = getUiType()
@@ -111,6 +111,13 @@ const OneClickEstimation = ({
         isScrollEnabled={false}
         shouldBeClosableOnDrag={false}
       >
+        {!signAccountOpController && (
+          <View style={[flexbox.alignCenter, flexbox.justifyCenter, { padding: 24 }]}>
+            <Text appearance="secondaryText" fontSize={14}>
+              {t('Preparing transaction...')}
+            </Text>
+          </View>
+        )}
         {!!signAccountOpController && (
           <View style={{ maxHeight: 420 }}>
             <SigningKeySelect

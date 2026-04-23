@@ -57,6 +57,7 @@ import SwapAndBridgeScreen from '@web/modules/swap-and-bridge/screens/SwapAndBri
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 import ViewOnlyAccountAdderScreen from '@web/modules/view-only-account-adder/ViewOnlyAccountAdderScreen'
 
+import CurvyTestScreen from '@web/modules/curvy-test/screens/CurvyTestScreen'
 import PPv1HomeScreen from '@web/modules/PPv1/screens/Home'
 import PPv1DepositScreen from '@web/modules/PPv1/deposit/screens/DepositScreen'
 import PPv1TransferScreen from '@web/modules/PPv1/transfer/screens/TransferScreen'
@@ -167,6 +168,9 @@ const MainRoutes = () => {
         <Route element={<AuthenticatedRoute />}>
           <Route path={WEB_ROUTES.public} element={<DashboardScreen />} />
           <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
+
+          {/* Curvy Test */}
+          <Route path={WEB_ROUTES.curvyTest} element={<CurvyTestScreen />} />
 
           {/* Privacy Pools V1 */}
           <Route path={WEB_ROUTES.pp1Home} element={<PPv1HomeScreen />} />

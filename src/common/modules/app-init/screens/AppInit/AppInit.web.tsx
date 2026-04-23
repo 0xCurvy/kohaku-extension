@@ -48,6 +48,7 @@ import { SwapAndBridgeControllerStateProvider } from '@web/contexts/swapAndBridg
 import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
 import { WalletStateControllerProvider } from '@web/contexts/walletStateControllerContext'
 import { RailgunControllerStateProvider } from '@web/contexts/railgunControllerStateContext'
+import { CurvyControllerStateProvider } from '@web/contexts/curvyControllerStateContext'
 import { PrivacyPoolsV1ControllerStateProvider } from '@web/contexts/privacyPoolsV1ControllerStateContext/privacyPoolsV1ControllerStateContext'
 
 const Router = isExtension ? HashRouter : BrowserRouter
@@ -95,6 +96,7 @@ const AppInit = () => {
                                                                     <TransferControllerStateProvider>
                                                                       <PrivacyPoolsV1ControllerStateProvider>
                                                                         <RailgunControllerStateProvider>
+                                                                          <CurvyControllerStateProvider>
                                                                           {/* Reading from controllers in components, rendered above ControllersStateLoadedProvider
                                                                     must be done very carefully, as it is not guaranteed that the state is loaded */}
                                                                           <ControllersStateLoadedProvider>
@@ -113,6 +115,7 @@ const AppInit = () => {
                                                                               </KeyboardProvider>
                                                                             </StorageProvider>
                                                                           </ControllersStateLoadedProvider>
+                                                                          </CurvyControllerStateProvider>
                                                                         </RailgunControllerStateProvider>
                                                                       </PrivacyPoolsV1ControllerStateProvider>
                                                                     </TransferControllerStateProvider>

@@ -161,7 +161,7 @@ const TransferScreen = () => {
     if (railgunAccountsState.balances.length > 0) {
       let balance = BigInt(0)
       for (const bal of railgunAccountsState.balances) {
-        if (bal.tokenAddress.toLowerCase() === ZERO_ADDRESS.toLowerCase()) {
+        if (bal.tokenAddress.toLowerCase() === ZERO_ADDRESS.toLowerCase() && bal.amount != null) {
           balance += BigInt(bal.amount)
         }
       }
@@ -423,11 +423,11 @@ const TransferScreen = () => {
   const addressInputState = useAddressInput({
     addressState,
     setAddressState,
-    overwriteError: !validationFormMsgs.recipientAddress.success
-      ? validationFormMsgs.recipientAddress.message
+    overwriteError: !validationFormMsgs?.recipientAddress?.success
+      ? validationFormMsgs?.recipientAddress?.message ?? ''
       : '',
-    overwriteValidLabel: validationFormMsgs?.recipientAddress.success
-      ? validationFormMsgs.recipientAddress.message
+    overwriteValidLabel: validationFormMsgs?.recipientAddress?.success
+      ? validationFormMsgs?.recipientAddress?.message ?? ''
       : '',
     handleCacheResolvedDomain
   })

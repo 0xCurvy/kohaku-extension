@@ -4,6 +4,7 @@
 import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
 import {
+  SIGN_ACCOUNT_OP_CURVY,
   SIGN_ACCOUNT_OP_MAIN,
   SIGN_ACCOUNT_OP_SWAP,
   SIGN_ACCOUNT_OP_TRANSFER,
@@ -294,6 +295,8 @@ export const handleActions = async (
         signAccountOpType = SIGN_ACCOUNT_OP_PRIVACY_POOLS_V1
       } else if (params.updateType === 'Railgun') {
         signAccountOpType = SIGN_ACCOUNT_OP_RAILGUN
+      } else if (params.updateType === 'Curvy') {
+        signAccountOpType = SIGN_ACCOUNT_OP_CURVY
       } else {
         signAccountOpType = SIGN_ACCOUNT_OP_TRANSFER
       }
@@ -342,6 +345,10 @@ export const handleActions = async (
 
       if (params.updateType === 'Railgun') {
         return mainCtrl?.railgun?.signAccountOpController?.update(params)
+      }
+
+      if (params.updateType === 'Curvy') {
+        return mainCtrl?.curvy?.signAccountOpController?.update(params)
       }
 
       // 'Transfer&TopUp'
@@ -536,9 +543,26 @@ export const handleActions = async (
     case 'RAILGUN_CONTROLLER_GET_DEFAULT_RAILGUN_KEYS':
       console.log('[BG][RAILGUN] GET_DEFAULT_RAILGUN_KEYS action');
       return mainCtrl.railgun.getDefaultRailgunKeys()
-    case 'RAILGUN_CONTROLLER_DERIVE_RAILGUN_KEYS':
-      console.log('[BG][RAILGUN] DERIVE_RAILGUN_KEYS action', params);
-      return mainCtrl.railgun.deriveRailgunKeys(params.index)
+    case 'RAILGUN_CONTROLLER_DERIVE_RAILGUN_KEYS': {
+      console.log('[BG][RAILGUN] DERIVE_RAILGUN_KEYS action', params)
+      // Swallow "no seed" errors so the background global handler does NOT show
+      // "Something went wrong!" for hardware-wallet / view-only accounts or
+      // accounts still being created. The frontend's waitForBgValue() times out
+      // gracefully and sets Railgun status='error' without a user toast.
+      try {
+        return await mainCtrl.railgun.deriveRailgunKeys(params.index)
+      } catch (err: any) {
+        if (
+          err?.message?.includes('seed phrase') ||
+          err?.message?.includes('No seed') ||
+          err?.message?.includes('seed')
+        ) {
+          console.warn('[BG][RAILGUN] DERIVE_RAILGUN_KEYS: no seed available, skipping silently')
+          return undefined
+        }
+        throw err
+      }
+    }
     case 'RAILGUN_CONTROLLER_GET_ACCOUNT_CACHE':
       console.log('[BG][RAILGUN] GET_ACCOUNT_CACHE action', params);
       return mainCtrl.railgun.getRailgunAccountCache(params.zkAddress, params.chainId);
@@ -829,6 +853,27 @@ export const handleActions = async (
       await mainCtrl.banner.dismissBanner(params.bannerId)
       break
     }
+
+    case 'CURVY_CONTROLLER_INIT':
+      return mainCtrl.curvy.init(params)
+    case 'CURVY_CONTROLLER_FETCH_BALANCE':
+      return mainCtrl.curvy.fetchBalance()
+    case 'CURVY_CONTROLLER_SHIELD':
+      return mainCtrl.curvy.prepareShield(params.asset as any)
+    case 'CURVY_CONTROLLER_TRANSFER':
+      return mainCtrl.curvy.transfer(params.asset as any, params.toCurvyId)
+    case 'CURVY_CONTROLLER_UNSHIELD':
+      return mainCtrl.curvy.unshield(params.asset as any, params.toAddress)
+    case 'CURVY_CONTROLLER_DESTROY':
+      return mainCtrl.curvy.destroy()
+    case 'CURVY_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
+      return mainCtrl.curvy?.signAccountOpController?.update(params)
+    case 'CURVY_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
+      return mainCtrl.curvy?.signAccountOpController?.updateStatus(params.status)
+    case 'CURVY_CONTROLLER_HAS_USER_PROCEEDED':
+      return mainCtrl.curvy.setUserProceeded(params.proceeded)
+    case 'CURVY_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP':
+      return mainCtrl.curvy.destroyLatestBroadcastedAccountOp()
 
     default:
       // eslint-disable-next-line no-console

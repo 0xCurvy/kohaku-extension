@@ -401,6 +401,7 @@ type SignAccountOpUpdateAction = {
       | 'PrivacyPools'
       | 'PrivacyPoolsV1'
       | 'Railgun'
+      | 'Curvy'
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
     estimation?: FullEstimation
@@ -418,6 +419,8 @@ type MainControllerSignAccountOpUpdateStatus = {
     | 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
     | 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
     | 'PRIVACY_POOLS_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
+    | 'RAILGUN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
+    | 'CURVY_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
   params: {
     status: SigningStatus
   }
@@ -432,6 +435,7 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
       | 'PrivacyPools'
       | 'Railgun'
       | 'PrivacyPoolsV1'
+      | 'Curvy'
   }
 }
 
@@ -800,7 +804,8 @@ type PrivacyControllerUnloadScreenAction = {
 type PrivacyControllerSignAccountOpUpdateAction = {
   type: 'PRIVACY_POOLS_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
   params: {
-    status: SigningStatus
+    signingKeyAddr?: Key['addr']
+    signingKeyType?: Key['type']
   }
 }
 
@@ -890,7 +895,8 @@ type RailgunControllerUnloadScreenAction = {
 type RailgunControllerSignAccountOpUpdateAction = {
   type: 'RAILGUN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
   params: {
-    status: SigningStatus
+    signingKeyAddr?: Key['addr']
+    signingKeyType?: Key['type']
   }
 }
 
@@ -1025,6 +1031,73 @@ type ProviderRpcRequestAction = {
     method: string
     params: any[]
   }
+}
+
+type CurvyControllerInitAction = {
+  type: 'CURVY_CONTROLLER_INIT'
+  params: {
+    curvyId?: string
+    environment?: 'mainnet' | 'testnet'
+    chainId?: bigint
+    apiBaseUrl?: string
+  }
+}
+
+type CurvyControllerFetchBalanceAction = {
+  type: 'CURVY_CONTROLLER_FETCH_BALANCE'
+}
+
+type CurvyControllerShieldAction = {
+  type: 'CURVY_CONTROLLER_SHIELD'
+  params: {
+    asset: { asset: any; amount: bigint }
+  }
+}
+
+type CurvyControllerTransferAction = {
+  type: 'CURVY_CONTROLLER_TRANSFER'
+  params: {
+    asset: { asset: any; amount: bigint }
+    toCurvyId: string
+  }
+}
+
+type CurvyControllerUnshieldAction = {
+  type: 'CURVY_CONTROLLER_UNSHIELD'
+  params: {
+    asset: { asset: any; amount: bigint }
+    toAddress: string
+  }
+}
+
+type CurvyControllerDestroyAction = {
+  type: 'CURVY_CONTROLLER_DESTROY'
+}
+
+type CurvyControllerSignAccountOpUpdateAction = {
+  type: 'CURVY_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
+  params: {
+    signingKeyAddr?: Key['addr']
+    signingKeyType?: Key['type']
+  }
+}
+
+type CurvyControllerSignAccountOpUpdateStatusAction = {
+  type: 'CURVY_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
+  params: {
+    status: SigningStatus
+  }
+}
+
+type CurvyControllerHasUserProceededAction = {
+  type: 'CURVY_CONTROLLER_HAS_USER_PROCEEDED'
+  params: {
+    proceeded: boolean
+  }
+}
+
+type CurvyControllerDestroyLatestBroadcastedAccountOpAction = {
+  type: 'CURVY_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
 }
 
 export type Action =
@@ -1205,3 +1278,13 @@ export type Action =
   | PrivacyPoolsV1ControllerDestroyLatestBroadcastedAccountOpAction
   | PortfolioControllerLoadAccountsTotalBalances
   | ProviderRpcRequestAction
+  | CurvyControllerInitAction
+  | CurvyControllerFetchBalanceAction
+  | CurvyControllerShieldAction
+  | CurvyControllerTransferAction
+  | CurvyControllerUnshieldAction
+  | CurvyControllerDestroyAction
+  | CurvyControllerSignAccountOpUpdateAction
+  | CurvyControllerSignAccountOpUpdateStatusAction
+  | CurvyControllerHasUserProceededAction
+  | CurvyControllerDestroyLatestBroadcastedAccountOpAction

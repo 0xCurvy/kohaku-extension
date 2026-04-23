@@ -65,8 +65,16 @@ function TransferScreen() {
     privacyProvider,
     isReady,
     selectedToken: depositFormSelectedToken,
-    supportedAssets
+    supportedAssets,
+    message: formMessage
   } = useDepositForm()
+
+  // Show curvy form errors as toasts
+  useEffect(() => {
+    if (privacyProvider === 'curvy' && formMessage?.type === 'error') {
+      addToast(formMessage.text, { type: 'error' })
+    }
+  }, [privacyProvider, formMessage, addToast])
 
   // Get selectedToken from the appropriate controller based on privacy provider
   // Use latestBroadcastedToken as fallback for railgun since selectedToken might be cleared after deposit
@@ -93,8 +101,14 @@ function TransferScreen() {
 
     // For Railgun, transactions are stored in accountsOps.transfer
     // For Privacy Pools, they're stored in accountsOps.privacyPools
+    // For Curvy, they're stored in accountsOps.curvy
     const accountsOpsSource =
-      privacyProvider === 'railgun' ? accountsOps.transfer : accountsOps.privacyPools
+      // eslint-disable-next-line no-nested-ternary
+      privacyProvider === 'railgun'
+        ? accountsOps.transfer
+        : privacyProvider === 'curvy'
+        ? accountsOps.curvy
+        : accountsOps.privacyPools
 
     if (!accountsOpsSource) return
 
@@ -130,7 +144,9 @@ function TransferScreen() {
 
   // Use 'transfer' sessionId for Railgun, 'privacyPools' for Privacy Pools
   const sessionId = useMemo(() => {
-    return privacyProvider === 'railgun' ? 'transfer' : 'privacyPools'
+    if (privacyProvider === 'railgun') return 'transfer'
+    if (privacyProvider === 'curvy') return 'curvy'
+    return 'privacyPools'
   }, [privacyProvider])
 
   const { sessionHandler } = useTrackAccountOp({
@@ -241,7 +257,13 @@ function TransferScreen() {
   }, [dispatch])
 
   const handleBroadcastAccountOp = useCallback(() => {
-    const updateType = privacyProvider === 'railgun' ? 'Railgun' : 'PrivacyPoolsV1'
+    const updateType =
+      // eslint-disable-next-line no-nested-ternary
+      privacyProvider === 'railgun'
+        ? 'Railgun'
+        : privacyProvider === 'curvy'
+        ? 'Curvy'
+        : 'PrivacyPoolsV1'
     dispatch({
       type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
       params: {
@@ -252,36 +274,26 @@ function TransferScreen() {
 
   const handleUpdateStatus = useCallback(
     (status: SigningStatus) => {
-      const actionType =
-        privacyProvider === 'railgun'
-          ? 'RAILGUN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
-          : 'PRIVACY_POOLS_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
-      dispatch({
-        type: actionType,
-        params: {
-          status
-        }
-      })
+      if (privacyProvider === 'railgun') {
+        dispatch({ type: 'RAILGUN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS', params: { status } })
+      } else if (privacyProvider === 'curvy') {
+        dispatch({ type: 'CURVY_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS', params: { status } })
+      } else {
+        dispatch({ type: 'PRIVACY_POOLS_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS', params: { status } })
+      }
     },
     [dispatch, privacyProvider]
   )
 
   const updateController = useCallback(
     (params: { signingKeyAddr?: Key['addr']; signingKeyType?: Key['type'] }) => {
-      console.log(
-        'DEBUG: updateController called with params:',
-        params,
-        'privacyProvider:',
-        privacyProvider
-      )
-      const actionType =
-        privacyProvider === 'railgun'
-          ? 'RAILGUN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
-          : 'PRIVACY_POOLS_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
-      dispatch({
-        type: actionType,
-        params
-      })
+      if (privacyProvider === 'railgun') {
+        dispatch({ type: 'RAILGUN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE', params })
+      } else if (privacyProvider === 'curvy') {
+        dispatch({ type: 'CURVY_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE', params })
+      } else {
+        dispatch({ type: 'PRIVACY_POOLS_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE', params })
+      }
     },
     [dispatch, privacyProvider]
   )
@@ -292,19 +304,23 @@ function TransferScreen() {
     // For Privacy Pools, we need poolInfo; for Railgun, we don't
     if (privacyProvider === 'privacy-pools') {
       if (isLoading || !isAccountLoaded) return false
-      return isReady && !validationFormMsgs.amount.message
+      return isReady && !validationFormMsgs?.amount?.message
     }
 
-    console.log('DEBUG: validationFormMsgs:', validationFormMsgs.amount)
+    // For Curvy, also require plugin to be ready
+    if (privacyProvider === 'curvy') {
+      return isReady && !validationFormMsgs?.amount?.message
+    }
+
     // For Railgun, just check deposit amount
-    return !validationFormMsgs.amount.message
+    return !validationFormMsgs?.amount?.message
   }, [
     depositAmount,
     isReady,
     isLoading,
     isAccountLoaded,
     privacyProvider,
-    validationFormMsgs.amount
+    validationFormMsgs?.amount
   ])
 
   const onBack = useCallback(() => {
@@ -317,8 +333,10 @@ function TransferScreen() {
   const proceedBtnText = useMemo(() => {
     if (isLoading && !isAccountLoaded && privacyProvider === 'privacy-pools')
       return t('Loading account...')
+    if (privacyProvider === 'curvy' && !isReady)
+      return t('Initializing...')
     return t('Shield')
-  }, [isLoading, privacyProvider, isAccountLoaded, t])
+  }, [isLoading, privacyProvider, isAccountLoaded, isReady, t])
 
   const buttons = useMemo(() => {
     return (
@@ -424,16 +442,19 @@ function TransferScreen() {
             supportedTokens={supportedAssets}
             selectedToken={selectedToken}
             defaultToken={defaultToken}
-            amountErrorMessage={validationFormMsgs.amount.message || ''}
+            amountErrorMessage={validationFormMsgs?.amount?.message || ''}
             handleUpdateForm={handleUpdateForm}
-            chainId={BigInt(chainId)}
+            chainId={BigInt(chainId ?? 0)}
             privacyProvider={privacyProvider}
           />
         </Form>
       </Content>
 
       <Estimation
-        updateType={privacyProvider === 'railgun' ? 'Railgun' : 'PrivacyPoolsV1'}
+        updateType={
+          // eslint-disable-next-line no-nested-ternary
+          privacyProvider === 'railgun' ? 'Railgun' : privacyProvider === 'curvy' ? 'Curvy' : 'PrivacyPoolsV1'
+        }
         estimationModalRef={estimationModalRef}
         closeEstimationModal={closeEstimationModal}
         updateController={updateController}

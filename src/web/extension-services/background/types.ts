@@ -17,6 +17,7 @@ import { PortfolioController } from '@ambire-common/controllers/portfolio/portfo
 import { PrivacyPoolsController } from '@ambire-common/controllers/privacyPools/privacyPools'
 import { PrivacyPoolsV1Controller } from '@ambire-common/controllers/privacyPools/privacyPoolsV1'
 import { RailgunController } from '@ambire-common/controllers/railgun/railgun'
+import { CurvyController } from '@ambire-common/controllers/curvy/curvy'
 import { ProvidersController } from '@ambire-common/controllers/providers/providers'
 import { RequestsController } from '@ambire-common/controllers/requests/requests'
 import { SelectedAccountController } from '@ambire-common/controllers/selectedAccount/selectedAccount'
@@ -55,7 +56,8 @@ export const controllersNestedInMainMapping = {
   swapAndBridge: SwapAndBridgeController,
   featureFlags: FeatureFlagsController,
   defiPositions: DefiPositionsController,
-  banner: BannerController
+  banner: BannerController,
+  curvy: CurvyController
 
   // Add the rest of the controllers that are part of the main controller:
   // - key is the name of the controller
