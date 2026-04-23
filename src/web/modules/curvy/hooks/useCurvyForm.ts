@@ -7,7 +7,7 @@
  * through the standard estimation modal. Transfer and unshield are handled
  * separately (direct broadcast via the plugin).
  */
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
 import { formatUnits, parseUnits } from 'viem'
 
@@ -55,6 +55,13 @@ const useCurvyForm = () => {
     handleCacheResolvedDomain
   })
 
+  // Surface curvy controller errors to the user
+  useEffect(() => {
+    if (curvyState?.error) {
+      setMessage({ type: 'error', text: curvyState.error })
+    }
+  }, [curvyState?.error])
+
   const closeEstimationModal = useCallback(() => {
     closeModalRaw()
   }, [closeModalRaw])
@@ -97,14 +104,23 @@ const useCurvyForm = () => {
   const curvyBalance = curvyState?.balance || []
 
   const totalApprovedBalance = useMemo(() => {
+    // eslint-disable-next-line no-console
+    console.log('[useCurvyForm] curvyBalance raw:', curvyBalance)
     // Sum all balances from curvy plugin
+    // Each item is AssetAmount: { asset: AssetId, amount: bigint }
     const total = curvyBalance.reduce((sum: bigint, b: any) => {
       try {
-        return sum + BigInt(b.amount || b.balance || 0)
+        // b.amount is bigint from AssetAmount type
+        const amt = b.amount !== undefined ? BigInt(b.amount) : BigInt(b.balance || 0)
+        // eslint-disable-next-line no-console
+        console.log('[useCurvyForm] balance item:', b.asset, 'amount:', amt.toString())
+        return sum + amt
       } catch {
         return sum
       }
     }, 0n)
+    // eslint-disable-next-line no-console
+    console.log('[useCurvyForm] totalApprovedBalance:', total.toString())
     return { total, accounts: curvyBalance }
   }, [curvyBalance])
 
@@ -127,12 +143,28 @@ const useCurvyForm = () => {
 
   // For shield: build native or erc20 asset and dispatch to controller
   const handleDeposit = useCallback(() => {
-    if (!depositAmount || !selectedToken) return
+    // eslint-disable-next-line no-console
+    console.log('[useCurvyForm] handleDeposit called', { depositAmount, selectedToken: selectedToken?.address, curvyStatus: curvyState?.status })
+    if (!depositAmount || !selectedToken) {
+      // eslint-disable-next-line no-console
+      console.warn('[useCurvyForm] handleDeposit early return: missing depositAmount or selectedToken')
+      return
+    }
+
+    if (curvyState?.status !== 'ready') {
+      // eslint-disable-next-line no-console
+      console.warn('[useCurvyForm] handleDeposit: curvy plugin not ready, status =', curvyState?.status)
+      setMessage({ type: 'error', text: 'Curvy plugin is not ready yet. Please wait.' })
+      return
+    }
 
     const isNative = selectedToken.address === '0x0000000000000000000000000000000000000000'
     const asset = isNative
       ? { __type: 'native' as const }
       : { __type: 'erc20' as const, contract: selectedToken.address as `0x${string}` }
+
+    // eslint-disable-next-line no-console
+    console.log('[useCurvyForm] dispatching CURVY_CONTROLLER_SHIELD', { asset, amount: depositAmount })
 
     // prepareShield internally calls syncSignAccountOp, building the AccountOp
     dispatch({
@@ -148,7 +180,7 @@ const useCurvyForm = () => {
     })
 
     openEstimationModal()
-  }, [depositAmount, selectedToken, dispatch, openEstimationModal])
+  }, [depositAmount, selectedToken, curvyState?.status, dispatch, openEstimationModal])
 
   const validationFormMsgs = useMemo(() => {
     const amount = (() => {

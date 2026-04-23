@@ -65,8 +65,16 @@ function TransferScreen() {
     privacyProvider,
     isReady,
     selectedToken: depositFormSelectedToken,
-    supportedAssets
+    supportedAssets,
+    message: formMessage
   } = useDepositForm()
+
+  // Show curvy form errors as toasts
+  useEffect(() => {
+    if (privacyProvider === 'curvy' && formMessage?.type === 'error') {
+      addToast(formMessage.text, { type: 'error' })
+    }
+  }, [privacyProvider, formMessage, addToast])
 
   // Get selectedToken from the appropriate controller based on privacy provider
   // Use latestBroadcastedToken as fallback for railgun since selectedToken might be cleared after deposit
@@ -299,7 +307,12 @@ function TransferScreen() {
       return isReady && !validationFormMsgs?.amount?.message
     }
 
-    // For Railgun/Curvy, just check deposit amount
+    // For Curvy, also require plugin to be ready
+    if (privacyProvider === 'curvy') {
+      return isReady && !validationFormMsgs?.amount?.message
+    }
+
+    // For Railgun, just check deposit amount
     return !validationFormMsgs?.amount?.message
   }, [
     depositAmount,
@@ -320,8 +333,10 @@ function TransferScreen() {
   const proceedBtnText = useMemo(() => {
     if (isLoading && !isAccountLoaded && privacyProvider === 'privacy-pools')
       return t('Loading account...')
+    if (privacyProvider === 'curvy' && !isReady)
+      return t('Initializing...')
     return t('Shield')
-  }, [isLoading, privacyProvider, isAccountLoaded, t])
+  }, [isLoading, privacyProvider, isAccountLoaded, isReady, t])
 
   const buttons = useMemo(() => {
     return (
@@ -429,7 +444,7 @@ function TransferScreen() {
             defaultToken={defaultToken}
             amountErrorMessage={validationFormMsgs?.amount?.message || ''}
             handleUpdateForm={handleUpdateForm}
-            chainId={BigInt(chainId)}
+            chainId={BigInt(chainId ?? 0)}
             privacyProvider={privacyProvider}
           />
         </Form>

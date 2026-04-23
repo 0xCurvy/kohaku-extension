@@ -13,17 +13,15 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { formatEther, formatUnits, parseUnits, zeroAddress } from 'viem'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
-import PrivacyIcon from '@common/assets/svg/PrivacyIcon'
 import Select from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
 import Avatar from '@common/components/Avatar'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
-import RailgunIcon from '@common/assets/svg/RailgunIcon'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps/useGetTokenSelectProps'
 import { getTokenId } from '@web/utils/token'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import PrivacyProtocolSelector from '@web/components/PrivacyProtocols'
+import PrivacyProtocolSelector, { getPrivacyProtocolOptions } from '@web/components/PrivacyProtocols'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import SendToken from '../SendToken'
 import styles from './styles'
@@ -107,40 +105,11 @@ const DepositForm = ({
     isToToken: false
   })
 
-  // Create provider options with icons
-  const providerOptions = useMemo<SelectValue[]>(
-    () => [
-      {
-        label: (
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <PrivacyIcon width={15} height={15} />
-            <Text fontSize={14} weight="light" style={spacings.mlMi}>
-              {t('Privacy Pools')}
-            </Text>
-          </View>
-        ),
-        value: 'privacy-pools'
-      },
-      {
-        label: (
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <RailgunIcon width={15} height={15} />
-            <Text fontSize={14} weight="light">
-              {t('Railgun')}
-            </Text>
-          </View>
-        ),
-        value: 'railgun'
-      }
-    ],
-    [t]
-  )
+  const providerOptions = useMemo(() => getPrivacyProtocolOptions(t), [t])
 
   const selectedProvider = useMemo(() => {
     const providerValue = privacyProvider || 'railgun'
-    const providerOption = providerOptions.find((opt) => opt.value === providerValue)
-
-    return providerOption || null
+    return providerOptions.find((opt) => opt.value === providerValue) || null
   }, [privacyProvider, providerOptions])
 
   // Get balance for the currently selected token

@@ -85,7 +85,7 @@
     "@kohaku-eth/plugins": "/Users/mihailoradojevic/curvy/kohaku-tarballs/kohaku-eth-plugins-0.0.1-alpha.7.tgz",
     "@kohaku-eth/privacy-pools": "/Users/mihailoradojevic/curvy/kohaku-tarballs/kohaku-eth-privacy-pools-0.0.2-alpha.9.tgz",
     "@kohaku-eth/provider": "/Users/mihailoradojevic/curvy/kohaku-tarballs/kohaku-eth-provider-0.1.0-alpha.7.tgz",
-    "@kohaku-eth/railgun": "/Users/mihailoradojevic/curvy/kohaku-tarballs/kohaku-eth-railgun-0.0.1-alpha.12.tgz",
+    "@kohaku-eth/railgun": "0.0.1-alpha.8",
     "@ledgerhq/context-module": "1.4.0",
     "@ledgerhq/device-management-kit": "0.7.0",
     "@ledgerhq/device-signer-kit-ethereum": "1.5.0",
@@ -313,7 +313,7 @@
     "@kohaku-eth/plugins": "/Users/mihailoradojevic/curvy/kohaku-tarballs/kohaku-eth-plugins-0.0.1-alpha.7.tgz",
     "@kohaku-eth/provider": "/Users/mihailoradojevic/curvy/kohaku-tarballs/kohaku-eth-provider-0.1.0-alpha.7.tgz",
     "@kohaku-eth/privacy-pools": "/Users/mihailoradojevic/curvy/kohaku-tarballs/kohaku-eth-privacy-pools-0.0.2-alpha.9.tgz",
-    "@kohaku-eth/railgun": "/Users/mihailoradojevic/curvy/kohaku-tarballs/kohaku-eth-railgun-0.0.1-alpha.12.tgz",
+    "@kohaku-eth/railgun": "0.0.1-alpha.8",
     "@kohaku-eth/curvy": "/Users/mihailoradojevic/curvy/kohaku-tarballs/kohaku-eth-curvy-0.0.1-alpha.0.tgz"
   },
   "private": true,

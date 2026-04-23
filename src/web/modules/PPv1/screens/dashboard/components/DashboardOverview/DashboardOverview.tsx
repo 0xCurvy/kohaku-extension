@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
-import { Animated, Pressable, View } from 'react-native'
+import { Animated, Pressable, TouchableOpacity, View } from 'react-native'
 
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import SkeletonLoader from '@common/components/SkeletonLoader'
@@ -65,7 +65,9 @@ const DashboardOverview: FC<Props> = ({
     refreshPrivateAccount: refreshPrivateAccountRailgun
   } = useRailgunForm()
 
-  const { totalPrivatePortfolio: totalPrivatePortfolioCurvy } = useCurvyForm()
+  const { totalPrivatePortfolio: totalPrivatePortfolioCurvy, refreshPrivateAccount: refreshPrivateAccountCurvy } = useCurvyForm()
+
+  const [privateBalanceProvider, setPrivateBalanceProvider] = useState<'railgun' | 'curvy'>('railgun')
 
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -80,7 +82,10 @@ const DashboardOverview: FC<Props> = ({
     networksWithErrors
   } = useBalanceAffectingErrors()
 
-  const totalPrivatePortfolioMixed = totalPrivatePortfolio + totalPrivatePortfolioRailgun + totalPrivatePortfolioCurvy
+  const selectedPrivateBalance = privateBalanceProvider === 'railgun'
+    ? totalPrivatePortfolioRailgun
+    : totalPrivatePortfolioCurvy
+  const totalPrivatePortfolioMixed = totalPrivatePortfolio + selectedPrivateBalance
 
   const [totalPrivatePortfolioInteger, totalPrivatePortfolioDecimal] = formatDecimals(
     totalPrivatePortfolioMixed,
@@ -109,8 +114,12 @@ const DashboardOverview: FC<Props> = ({
   }, [buttonPosition, onGasTankButtonPositionWrapped])
 
   const doRefreshPrivateAccounts = useCallback(async () => {
-    await Promise.all([sync(), refreshPrivateAccountRailgun()])
-  }, [sync, refreshPrivateAccountRailgun])
+    const refreshSelected =
+      privateBalanceProvider === 'railgun'
+        ? refreshPrivateAccountRailgun
+        : refreshPrivateAccountCurvy
+    await Promise.all([sync(), refreshSelected()])
+  }, [sync, privateBalanceProvider, refreshPrivateAccountRailgun, refreshPrivateAccountCurvy])
 
   return (
     <View style={[spacings.phSm, spacings.mbMi]}>
@@ -156,6 +165,34 @@ const DashboardOverview: FC<Props> = ({
               }}
             >
               <View>
+                <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
+                  <TouchableOpacity
+                    onPress={() => setPrivateBalanceProvider('railgun')}
+                    style={{
+                      paddingHorizontal: 8,
+                      paddingVertical: 3,
+                      borderRadius: 4,
+                      backgroundColor: privateBalanceProvider === 'railgun' ? 'rgba(255,255,255,0.2)' : 'transparent'
+                    }}
+                  >
+                    <Text fontSize={11} shouldScale={false} color={themeType === THEME_TYPES.DARK ? theme.primaryBackgroundInverted : theme.primaryBackground}>
+                      Railgun
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setPrivateBalanceProvider('curvy')}
+                    style={{
+                      paddingHorizontal: 8,
+                      paddingVertical: 3,
+                      borderRadius: 4,
+                      backgroundColor: privateBalanceProvider === 'curvy' ? 'rgba(255,255,255,0.2)' : 'transparent'
+                    }}
+                  >
+                    <Text fontSize={11} shouldScale={false} color={themeType === THEME_TYPES.DARK ? theme.primaryBackgroundInverted : theme.primaryBackground}>
+                      Curvy
+                    </Text>
+                  </TouchableOpacity>
+                </View>
                 <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
                   {!isSynced ? (
                     <SkeletonLoader

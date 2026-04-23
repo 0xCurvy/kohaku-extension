@@ -543,9 +543,26 @@ export const handleActions = async (
     case 'RAILGUN_CONTROLLER_GET_DEFAULT_RAILGUN_KEYS':
       console.log('[BG][RAILGUN] GET_DEFAULT_RAILGUN_KEYS action');
       return mainCtrl.railgun.getDefaultRailgunKeys()
-    case 'RAILGUN_CONTROLLER_DERIVE_RAILGUN_KEYS':
-      console.log('[BG][RAILGUN] DERIVE_RAILGUN_KEYS action', params);
-      return mainCtrl.railgun.deriveRailgunKeys(params.index)
+    case 'RAILGUN_CONTROLLER_DERIVE_RAILGUN_KEYS': {
+      console.log('[BG][RAILGUN] DERIVE_RAILGUN_KEYS action', params)
+      // Swallow "no seed" errors so the background global handler does NOT show
+      // "Something went wrong!" for hardware-wallet / view-only accounts or
+      // accounts still being created. The frontend's waitForBgValue() times out
+      // gracefully and sets Railgun status='error' without a user toast.
+      try {
+        return await mainCtrl.railgun.deriveRailgunKeys(params.index)
+      } catch (err: any) {
+        if (
+          err?.message?.includes('seed phrase') ||
+          err?.message?.includes('No seed') ||
+          err?.message?.includes('seed')
+        ) {
+          console.warn('[BG][RAILGUN] DERIVE_RAILGUN_KEYS: no seed available, skipping silently')
+          return undefined
+        }
+        throw err
+      }
+    }
     case 'RAILGUN_CONTROLLER_GET_ACCOUNT_CACHE':
       console.log('[BG][RAILGUN] GET_ACCOUNT_CACHE action', params);
       return mainCtrl.railgun.getRailgunAccountCache(params.zkAddress, params.chainId);

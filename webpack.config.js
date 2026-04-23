@@ -191,6 +191,13 @@ module.exports = async function (env, argv) {
       // As far as we could debug, these are not critical and lib specific.
       // Webpack can't find source maps for specific packages, which is fine.
       message: /Failed to parse source map/
+    },
+    {
+      // @lifi/sdk -> ox -> virtualMasterPool.js uses dynamic import(id) for
+      // Node.js worker_threads. This is a Node-only code path that never runs
+      // in the browser/extension context. Safe to ignore.
+      module: /virtualMasterPool/,
+      message: /Critical dependency/
     }
   ]
 
@@ -214,8 +221,6 @@ module.exports = async function (env, argv) {
     'node:fs': false,
     'node:path': false,
     'node:url': require.resolve('url/'),
-    // Stub out railgun package entirely — not needed for curvy testing
-    '@kohaku-eth/railgun': false
   }
 
   config.resolve.fallback = {

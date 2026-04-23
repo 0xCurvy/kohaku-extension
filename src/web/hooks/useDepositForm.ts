@@ -20,6 +20,7 @@ import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/do
 import useAddressInput from '@common/hooks/useAddressInput'
 import useBackgroundService from './useBackgroundService'
 import useRailgunControllerState from './useRailgunControllerState'
+import usePrivacyPoolsControllerState from './usePrivacyPoolsControllerState'
 import usePrivacyPools from './usePrivacyPools/usePrivacyPools'
 import useSelectedAccountControllerState from './useSelectedAccountControllerState'
 
@@ -364,9 +365,11 @@ export const usePrivacyPoolsDepositForm = () => {
 }
 
 const useDepositForm = () => {
-  // Get the privacy provider setting from Privacy Pools controller
-  // (both controllers share this setting)
-  const { privacyProvider } = useRailgunControllerState()
+  // Read privacyProvider from privacy pools controller (not railgun, which is stubbed).
+  // Both controllers mirror this field, but railgun context is disabled/stubbed to {}.
+  const { privacyProvider: ppPrivacyProvider } = usePrivacyPoolsControllerState()
+  const { privacyProvider: railgunPrivacyProvider } = useRailgunControllerState()
+  const privacyProvider = ppPrivacyProvider || railgunPrivacyProvider
   const { dispatch } = useBackgroundService()
 
   // IMPORTANT: Always call all hooks unconditionally to maintain consistent hook order

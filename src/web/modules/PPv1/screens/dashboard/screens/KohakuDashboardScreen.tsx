@@ -13,6 +13,7 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useRailgunForm from '@web/modules/railgun/hooks/useRailgunForm'
+import useCurvyForm from '@web/modules/curvy/hooks/useCurvyForm'
 import { getUiType } from '@web/utils/uiType'
 import ReceiveModal from '@web/components/ReceiveModal'
 import flexbox from '@common/styles/utils/flexbox'
@@ -80,11 +81,13 @@ const KohakuDashboardScreen = () => {
 
   const privacyPoolsForm = usePrivacyPoolsDepositForm()
   const railgunForm = useRailgunForm()
+  const curvyForm = useCurvyForm()
 
   const handleRetryLoadPrivateAccount = useCallback(() => {
     privacyPoolsForm.refreshPrivateAccount()
     railgunForm.refreshPrivateAccount()
-  }, [privacyPoolsForm.refreshPrivateAccount, railgunForm.refreshPrivateAccount])
+    curvyForm.refreshPrivateAccount()
+  }, [privacyPoolsForm.refreshPrivateAccount, railgunForm.refreshPrivateAccount, curvyForm.refreshPrivateAccount])
 
   const { balanceCache, isLoadingPublicBalances, refreshPublicBalances } = usePublicBalanceCache({
     accounts,
@@ -96,10 +99,12 @@ const KohakuDashboardScreen = () => {
   const handleRefreshAll = useCallback(() => {
     privacyPoolsForm.refreshPrivateAccount()
     railgunForm.refreshPrivateAccount()
+    curvyForm.refreshPrivateAccount()
     refreshPublicBalances()
   }, [
     privacyPoolsForm.refreshPrivateAccount,
     railgunForm.refreshPrivateAccount,
+    curvyForm.refreshPrivateAccount,
     refreshPublicBalances
   ])
 
@@ -109,10 +114,15 @@ const KohakuDashboardScreen = () => {
   )
 
   const livePrivateBalance =
-    (privacyPoolsForm.totalPrivatePortfolio || 0) + (railgunForm.totalPrivatePortfolio || 0)
+    (privacyPoolsForm.totalPrivatePortfolio || 0) +
+    (railgunForm.totalPrivatePortfolio || 0) +
+    (curvyForm.totalPrivatePortfolio || 0)
 
   const isPrivateLoading =
-    railgunForm.isLoading || privacyPoolsForm.isLoading || privacyPoolsForm.syncState === 'syncing'
+    railgunForm.isLoading ||
+    privacyPoolsForm.isLoading ||
+    privacyPoolsForm.syncState === 'syncing' ||
+    curvyForm.isLoading
 
   if (livePrivateBalance > 0) cachedPrivateBalanceRef.current = livePrivateBalance
 
@@ -190,6 +200,12 @@ const KohakuDashboardScreen = () => {
       railgunForm.loadPrivateAccount()
     }
   }, [railgunForm.isAccountLoaded, railgunForm.isLoading])
+
+  useEffect(() => {
+    if (curvyForm.isReady) {
+      curvyForm.loadPrivateAccount()
+    }
+  }, [curvyForm.isReady])
 
   useEffect(() => {
     if (railgunForm.isLoading && isLoadingPublicBalances) return

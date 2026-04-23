@@ -52,10 +52,13 @@ export class BackgroundService {
     }
 
     this.fireBg('RAILGUN_CONTROLLER_DERIVE_RAILGUN_KEYS', { index })
-    return this.waitForBgValue<RailgunAccountKeys>((state) => {
-      if (index === 0 && state.defaultRailgunKeys) return state.defaultRailgunKeys
-      return state.derivedRailgunKeysByIndex ? state.derivedRailgunKeysByIndex[index] : undefined
-    })
+    return this.waitForBgValue<RailgunAccountKeys>(
+      (state) => {
+        if (index === 0 && state.defaultRailgunKeys) return state.defaultRailgunKeys
+        return state.derivedRailgunKeysByIndex ? state.derivedRailgunKeysByIndex[index] : undefined
+      },
+      { timeoutMs: 3000 }
+    )
   }
 
   async getAccountCacheFromBg(

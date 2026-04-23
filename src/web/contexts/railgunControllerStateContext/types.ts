@@ -4,9 +4,7 @@ import type {
   RailgunAccountKeys,
   RailgunAccountCache
 } from '@ambire-common/controllers/railgun/railgun'
-// Stubbed types while railgun is disabled
-type RailgunAccount = any
-type Indexer = any
+import { type RailgunAccount, type Indexer } from '@kohaku-eth/railgun'
 
 export type RailgunSyncStatus = 'idle' | 'running' | 'ready' | 'error'
 

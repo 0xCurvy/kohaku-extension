@@ -111,6 +111,13 @@ const OneClickEstimation = ({
         isScrollEnabled={false}
         shouldBeClosableOnDrag={false}
       >
+        {!signAccountOpController && (
+          <View style={[flexbox.alignCenter, flexbox.justifyCenter, { padding: 24 }]}>
+            <Text appearance="secondaryText" fontSize={14}>
+              {t('Preparing transaction...')}
+            </Text>
+          </View>
+        )}
         {!!signAccountOpController && (
           <View style={{ maxHeight: 420 }}>
             <SigningKeySelect
